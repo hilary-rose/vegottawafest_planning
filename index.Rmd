@@ -71,18 +71,18 @@ emails_schedule <- tibble(email_number = 1:13,
                                                    "6 weeks before",
                                                    "4 weeks before",
                                                    "3 days before",
-                                                   "Day of event",
+                                                   "",
                                                    "3 days after"),
-                          email_description = c("First invitation to potential speakers",
-                                                "Email to potential speakers who have declined to take part",
-                                                "Email to potential speakers who have not replied to us at all",
-                                                "Email to potential speakers who have accepted",
-                                                "Follow-up to speakers who haven’t sent back the signed speaker agreement",
-                                                "Email to speakers who have sent back the signed speaker agreement",
-                                                "Follow-up email to speakers who have not sent the info requested",
-                                                "Email to speakers who have supplied the requested info",
-                                                "Email to speakers requesting their presentation",
-                                                "Follow-up email to speakers who have not provided their presentation",
+                          email_description = c("First invitation",
+                                                "Email to those who declined",
+                                                "Email to those who didn't reply",
+                                                "Email to those who accepted",
+                                                "Follow-up to those who didn't send agreement",
+                                                "Email to those who sent back agreement",
+                                                "Follow-up to those who didn't send bio info",
+                                                "Email to those who sent bio info",
+                                                "Email requesting presentation",
+                                                "Follow-up requesting presentation",
                                                 "Pre-event email to speakers",
                                                 NA_character_,
                                                 "Post-event email to speakers"),
@@ -148,20 +148,27 @@ plot_with_tooltip <- emails_schedule %>%
   filter(!is.na(email_type)) %>%
  # pivot_longer(c(days_from_event_numeric, duration_end), names_to = "start_end", values_to = "days_from_event") %>% 
   ggplot(aes(x = days_from_event_numeric,
-             y = rev(fct_inorder(email_description)),
+             y = (fct_inorder(email_description)),
              text = email_content)) +
   geom_vline(xintercept = 0,
-             color = "green",
+             color = "darkgreen",
              linetype = "dashed") +
+  annotate(geom = "text",
+           x = 0, y = "Email to those who declined",
+           label = "Day of event",
+           angle = 90,
+           vjust = -.5,
+           size = 3,
+           color = "darkgreen") +
   geom_segment_interactive(aes(x = days_from_event_numeric, 
                    xend = duration_end, 
-                   y = rev(fct_inorder(email_description)), 
-                   yend = rev(fct_inorder(email_description)),
+                   y = (fct_inorder(email_description)), 
+                   yend = (fct_inorder(email_description)),
                    color = email_type,
                    fill = email_type,
                tooltip = email_content), 
                lineend = "round", 
-               size = 5) + 
+               size = 7) + 
   labs(color="Email type",
        x = "Time relative to event",
        y = "Email description",
@@ -169,9 +176,12 @@ plot_with_tooltip <- emails_schedule %>%
        subtitle = "Hover over segment ends to see email content") +
   scale_x_continuous(breaks = unique(emails_schedule$days_from_event_numeric), 
                      labels = unique(emails_schedule$days_from_event_text)) +
+  scale_y_discrete(limits=rev) +
+  #coord_fixed(5) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_text(angle = 45),
         legend.position="none") 
 
 
@@ -188,9 +198,9 @@ plot_with_tooltip <- emails_schedule %>%
 
 
 girafe(ggobj = plot_with_tooltip,
-       
-  width_svg = 11,
-  height_svg = 4)
+       width_svg = 8.5,
+       height_svg = 5)
+
 
 ```
 
