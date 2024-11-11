@@ -21,19 +21,19 @@ library(plotly)
 
 emails_schedule <- tibble(email_number = 1:13,
                           email_label = c(LETTERS[1:11], "Day of\nEvent", LETTERS[12]),
-                          email_type = c("Standard",
-                                         "Final, non-participating",
-                                         "Follow-up",
-                                         "Standard",
-                                         "Follow-up",
-                                         "Standard",
-                                         "Follow-up",
-                                         "Standard",
-                                         "Standard",
-                                         "Follow-up",
-                                         "Standard",
+                          email_type = c(" Standard ",
+                                         " Final, non-participating ",
+                                         " Follow-up ",
+                                         " Standard ",
+                                         " Follow-up ",
+                                         " Standard ",
+                                         " Follow-up ",
+                                         " Standard ",
+                                         " Standard ",
+                                         " Follow-up ",
+                                         " Standard ",
                                          NA_character_,
-                                         "Standard"),
+                                         " Standard "),
                           days_from_event_numeric = c(round(-8*(365/12), 0), #8 months
                                                       round(-8*(365/12), 0),
                                                       round(-8*(365/12), 0),
@@ -177,12 +177,13 @@ plot_with_tooltip <- emails_schedule %>%
   scale_x_continuous(breaks = unique(emails_schedule$days_from_event_numeric), 
                      labels = unique(emails_schedule$days_from_event_text)) +
   scale_y_discrete(limits=rev) +
+  guides(line = guide_legend(override.aes = list(size = .5))) +
   #coord_fixed(5) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         axis.text.y = element_text(angle = 45),
-        legend.position="none") 
+        legend.position="bottom") 
 
 
 ```
@@ -199,7 +200,7 @@ plot_with_tooltip <- emails_schedule %>%
 
 girafe(ggobj = plot_with_tooltip,
        width_svg = 8.5,
-       height_svg = 5)
+       height_svg = 5.25)
 
 
 ```
