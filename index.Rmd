@@ -189,8 +189,8 @@ plot_with_tooltip <- emails_schedule %>%
 
 girafe(ggobj = plot_with_tooltip,
        
-  width_svg = 8.5,
-  height_svg = 3.5)
+  width_svg = 11,
+  height_svg = 4)
 
 ```
 
