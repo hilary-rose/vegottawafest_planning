@@ -1,0 +1,159 @@
+---
+title: ""
+output: 
+  html_document:
+    css: "style.css"
+date: ""
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(here)
+library(lubridate)
+library(ggiraph)
+library(plotly)
+
+```
+
+```{r include = F}
+
+emails_schedule <- tibble(email_number = 1:13,
+                          email_label = c(LETTERS[1:11], "Day of\nEvent", LETTERS[12]),
+                          email_type = c("Standard",
+                                         "Final, non-participating",
+                                         "Follow-up",
+                                         "Standard",
+                                         "Follow-up",
+                                         "Standard",
+                                         "Follow-up",
+                                         "Standard",
+                                         "Standard",
+                                         "Follow-up",
+                                         "Standard",
+                                         NA_character_,
+                                         "Standard"),
+                          days_from_event_numeric = c(round(-8*(365/12), 0), #8 months
+                                                      round(-8*(365/12), 0),
+                                                      round(-8*(365/12), 0),
+                                                      round(-6*(365/12), 0), #6 months
+                                                      round(-5.5*(365/12), 0), #5.5 months
+                                                      round(-5.5*(365/12), 0),
+                                                      round(-5*(365/12), 0),  #5 months
+                                                      round(-5*(365/12), 0),
+                                                      round(-1.5*(365/12), 0), #6 weeks
+                                                      round(-1*(365/12), 0), #4 weeks
+                                                      -3, #3 days
+                                                      0, #day of event
+                                                      3), 
+                          duration_days_numeric = c(round(2*(365/12), 0), #2 months
+                                                    round(2*(365/12), 0), 
+                                                    round(2*(365/12), 0),
+                                                    round(365/12, 0), #1 month
+                                                    round(365/12/4, 0), #1 week
+                                                    round(365/12/4, 0),
+                                                    round(365/12/4, 0),
+                                                    round(365/12/4, 0),
+                                                    round(365/12/4, 0),
+                                                    round(365/12/4, 0),
+                                                    1,
+                                                    1,
+                                                    1),
+                          days_from_event_text = c("6-8 months before",
+                                                   "6-8 months before",
+                                                   "6-8 months before",
+                                                   "6 months before",
+                                                   "5-6 months before",
+                                                   "5-6 months before",
+                                                   "4-5 months before",
+                                                   "4-5 months before",
+                                                   "6 weeks before",
+                                                   "4 weeks before",
+                                                   "3 days before",
+                                                   "Day of event",
+                                                   "3 days after"),
+                          email_description = c("First invitation to potential speakers",
+                                                "Email to potential speakers who have declined to take part",
+                                                "Email to potential speakers who have not replied to us at all",
+                                                "Email to potential speakers who have accepted",
+                                                "Follow-up to speakers who haven’t sent back the signed speaker agreement",
+                                                "Email to speakers who have sent back the signed speaker agreement",
+                                                "Follow-up email to speakers who have not sent the info requested",
+                                                "Email to speakers who have supplied the requested info",
+                                                "Email to speakers requesting their presentation",
+                                                "Follow-up email to speakers who have not provided their presentation",
+                                                "Pre-event email to speakers",
+                                                NA_character_,
+                                                "Post-event email to speakers"),
+                          email_content = c("Introduce VegOttawa, explain we are planning a VegFest and would like to extend invitation for them to speak on X topic. Provide event dates, location, and either ask what their speaker fee would be (for more well-known speakers) or provide what we can offer as a speaker fee (for others). Indicate that we will cover travel and accommodation costs, and request an answer within a certain time frame (2 weeks?)",
+                                            "Thank them for getting back to us and express hope that we might collaborate in the future. Wish them well.",
+                                            "Send a slightly modified version of the first email, letting them know we’d really love them to consider joining us, but we understand if it isn’t possible right now. If they could please let us know either way, then we can move forward with other potential speakers. Give them a further (week?) to reply.",
+                                            "Thank them for agreeing to participate, and include more details about what will be expected, including more details about talk length, content, themes we would advise against including, etc., plus signing the attached speaker agreement. Request the signed speaker agreement be returned to us within a certain time frame (1 week?)",
+                                            "Thank them again for agreeing to participate, and explain that we need the signed speaker agreement to move forward. As we have X speaker spots to fill up, if we don’t hear back within another (week?), we will have to move on to other potential speakers to fill the spot. Thank them again and offer to answer any questions they may have.",
+                                            "Thank them for returning the form and let them know their talk is now officially confirmed. Request details needed for booking accommodation and travel (full legal names, address, phone number? Or will they book own accommodation and provide us receipts for reimbursement? If so, indicate in email they should do so) and for promoting their talk (headshot, with specifications (what size, should it have a non-busy or solid colour background?, short bio (with max word count), short description of their talk (too early to request talk title at this point?), social media account links and website). Request that this all be provided to us within a specific time frame (1 week?)",
+                                            "Thank them again for signing the speaker agreement and let them know how excited we are that they will be taking part in our event. Remind them that in order to promote their participation, we require information about their online presence and their photo/bio. Let them know that if they have any questions or issues with what needs to be provided, we are happy to help with that. Give them an extra (week?) to supply these.",
+                                            "Thank them for sending the required info, and let them know how/when we will be promoting their talk (on Instagram, Facebook, on the website and through the VegOttawa newsletter). Request that they mention VegOttawa Fest in their socials/to their email contacts, and provide a logo file or two and maybe some example taglines they could use in their posts. Let them know we will be in touch closer to the event to check in, and request a copy of their powerpoint presentation within a specific time frame so we can test that it works with our equipment",
+                                            "Express how excited we are for their talk, and remind them we require a copy of the powerpoint within the next two weeks, so we can make sure it works with our A/V equipment. Request the title of their talk so we can include it in printed/online materials. Thank them again for participating.",
+                                            "Send a modified version of previous email, asking when they  might be able to send a copy of the presentation. Request the title of their talk ASAP, for our materials. Let them know if they have any issues or questions to reach out and we can help.",
+                                            "Drum up excitement for the event and again thank them for participating. Ask if they have any last minute questions or issues and reconfirm their travel/accommodation details. Include date, time, and place of event so they have it handy in a recent email. Outline who they should ask for when they arrive or where they should go exactly.",
+                                            NA_character_,
+                                            "Thank them again for their participation and making the event a success. Express that it was great to work with them and VegOttawa hopes to work with them again. Provide a link to an anonymous feedback form and also let them know they can provide non-anonymous feedback though email too."))
+
+
+
+plot <- emails_schedule %>%
+  mutate(duration_end = days_from_event_numeric + duration_days_numeric,
+         email_content = str_wrap(email_content)) %>% 
+  filter(!is.na(email_type)) %>%
+ # pivot_longer(c(days_from_event_numeric, duration_end), names_to = "start_end", values_to = "days_from_event") %>% 
+  ggplot(aes(x = days_from_event_numeric,
+             y = rev(fct_inorder(email_description)),
+             text = email_content)) +
+  geom_vline(xintercept = 0,
+             color = "green",
+             linetype = "dashed") +
+  geom_segment(aes(x = days_from_event_numeric, 
+                   xend = duration_end, 
+                   y = rev(fct_inorder(email_description)), 
+                   yend = rev(fct_inorder(email_description)),
+                   color = email_type,
+                   fill = email_type), 
+               lineend = "round", 
+               size = 5) + 
+  labs(color="Email type",
+       x = "Time relative to event",
+       y = "Email description",
+       title = "Rough plan for speakers communications timeline") +
+  scale_x_continuous(breaks = unique(emails_schedule$days_from_event_numeric), 
+                     labels = unique(emails_schedule$days_from_event_text)) +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        legend.position="none") 
+
+plot_with_tooltip <- ggplotly(plot,
+                               tooltip = "text")# %>%
+  # plotly::layout(hovermode = 'x')
+  # plotly::layout(legend=list(x=0, 
+  #                            y = -15,
+  #                                xanchor='left',
+  #                                yanchor='bottom',
+  #                                orientation='h'))
+
+```
+
+
+<br />
+<br />
+<br />
+
+
+```{r include = TRUE, out.width="150%"}
+
+
+
+plot_with_tooltip
+
+```
+
