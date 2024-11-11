@@ -86,20 +86,19 @@ emails_schedule <- tibble(email_number = 1:13,
                                                 "Pre-event email to speakers",
                                                 NA_character_,
                                                 "Post-event email to speakers"),
-                          email_content = c("Introduce VegOttawa, explain we are planning a VegFest and would like to extend invitation for them to speak on X topic. Provide event dates, location, and either ask what their speaker fee would be (for more well-known speakers) or provide what we can offer as a speaker fee (for others). Indicate that we will cover travel and accommodation costs, and request an answer within a certain time frame (2 weeks?)",
+                          email_content = c("Introduce VegOttawa, explain we are planning a VegFest and would like to extend invitation for them to speak on X topic, given their expertise in this area. Provide event dates, location, and either ask what their speaker fee would be (for more well-known speakers) or provide what we can offer as a speaker fee (for others). Indicate that we will cover travel and accommodation costs (if we will), and request a response within a certain time frame (2 weeks?)",
                                             "Thank them for getting back to us and express hope that we might collaborate in the future. Wish them well.",
                                             "Send a slightly modified version of the first email, letting them know we’d really love them to consider joining us, but we understand if it isn’t possible right now. If they could please let us know either way, then we can move forward with other potential speakers. Give them a further (week?) to reply.",
-                                            "Thank them for agreeing to participate, and include more details about what will be expected, including more details about talk length, content, themes we would advise against including, etc., plus signing the attached speaker agreement. Request the signed speaker agreement be returned to us within a certain time frame (1 week?)",
+                                            "Thank them for agreeing to participate, and include more details about what will be expected, including info about talk length, content, themes we would advise against including?, format (solo talk or panel discussion), etc., plus ask them to sign the attached speaker agreement. Request the signed speaker agreement be returned to us within a certain time frame (1 week?)",
                                             "Thank them again for agreeing to participate, and explain that we need the signed speaker agreement to move forward. As we have X speaker spots to fill up, if we don’t hear back within another (week?), we will have to move on to other potential speakers to fill the spot. Thank them again and offer to answer any questions they may have.",
-                                            "Thank them for returning the form and let them know their talk is now officially confirmed. Request details needed for booking accommodation and travel (full legal names, address, phone number? Or will they book own accommodation and provide us receipts for reimbursement? If so, indicate in email they should do so) and for promoting their talk (headshot, with specifications (what size, should it have a non-busy or solid colour background?, short bio (with max word count), short description of their talk (too early to request talk title at this point?), social media account links and website). Request that this all be provided to us within a specific time frame (1 week?)",
+                                            "Thank them for returning the form and let them know their talk is now officially confirmed. Request details needed for booking accommodation and travel (full legal names, address, phone number? Or will they book own accommodation and provide us receipts for reimbursement? If so, indicate the reimbursement instructions in the email) and for promoting their talk (headshot, with specifications (what size, should it have a non-busy or solid colour background?, short bio (with max word count), short description of their talk (too early to request talk title at this point?), social media account links and website). Request that this all be provided to us within a specific time frame (1 week?)",
                                             "Thank them again for signing the speaker agreement and let them know how excited we are that they will be taking part in our event. Remind them that in order to promote their participation, we require information about their online presence and their photo/bio. Let them know that if they have any questions or issues with what needs to be provided, we are happy to help with that. Give them an extra (week?) to supply these.",
-                                            "Thank them for sending the required info, and let them know how/when we will be promoting their talk (on Instagram, Facebook, on the website and through the VegOttawa newsletter). Request that they mention VegOttawa Fest in their socials/to their email contacts, and provide a logo file or two and maybe some example taglines they could use in their posts. Let them know we will be in touch closer to the event to check in, and request a copy of their powerpoint presentation within a specific time frame so we can test that it works with our equipment",
-                                            "Express how excited we are for their talk, and remind them we require a copy of the powerpoint within the next two weeks, so we can make sure it works with our A/V equipment. Request the title of their talk so we can include it in printed/online materials. Thank them again for participating.",
+                                            "Thank them for sending the required info, and let them know how/when we will be promoting their talk (on Instagram, Facebook, on the website and through the VegOttawa newsletter). Request that they mention VegOttawa Fest in their socials/to their email contacts, and provide a logo file or two and maybe some example taglines they could use in their posts. Let them know we will be in touch closer to the event to check in, and request a copy of their powerpoint presentation within a specific time frame so we can test that it works with our equipment and approve the content (4 weeks before event?)",
+                                            "Express how excited we are for their talk, and remind them we require a copy of the powerpoint within the next two weeks, so we can make sure it works with our A/V equipment and approve the content. Request the final title of their talk so we can include it in printed/online materials. Thank them again for participating.",
                                             "Send a modified version of previous email, asking when they  might be able to send a copy of the presentation. Request the title of their talk ASAP, for our materials. Let them know if they have any issues or questions to reach out and we can help.",
-                                            "Drum up excitement for the event and again thank them for participating. Ask if they have any last minute questions or issues and reconfirm their travel/accommodation details. Include date, time, and place of event so they have it handy in a recent email. Outline who they should ask for when they arrive or where they should go exactly.",
+                                            "Drum up excitement for the event and again thank them for participating. Ask if they have any last minute questions or issues and reconfirm their travel/accommodation details. Include date, time, and place of event so they have it handy in a recent email. Outline who they should ask for when they arrive or where they should go exactly. Confirm that they will receive their speaker fee after their talk at the event by cheque, and include details about where to go to get this.",
                                             NA_character_,
-                                            "Thank them again for their participation and making the event a success. Express that it was great to work with them and VegOttawa hopes to work with them again. Provide a link to an anonymous feedback form and also let them know they can provide non-anonymous feedback though email too."))
-
+                                            "Thank them again for their participation and making the event a success. Express that it was great to work with them and VegOttawa hopes to work with them again. Provide a link to an anonymous feedback form and also let them know they can provide non-anonymous feedback through email too. "))
 
 
 plot <- emails_schedule %>%
@@ -124,7 +123,8 @@ plot <- emails_schedule %>%
   labs(color="Email type",
        x = "Time relative to event",
        y = "Email description",
-       title = "Rough plan for speakers communications timeline") +
+       title = "Rough plan for speakers communications timeline",
+       subtitle = "Hover over segment ends to see email content") +
   scale_x_continuous(breaks = unique(emails_schedule$days_from_event_numeric), 
                      labels = unique(emails_schedule$days_from_event_text)) +
   theme_minimal() +
@@ -132,14 +132,48 @@ plot <- emails_schedule %>%
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
         legend.position="none") 
 
-plot_with_tooltip <- ggplotly(plot,
-                               tooltip = "text")# %>%
+# plot_with_tooltip <- ggplotly(plot,
+#                                tooltip = "text")# %>%
   # plotly::layout(hovermode = 'x')
   # plotly::layout(legend=list(x=0, 
   #                            y = -15,
   #                                xanchor='left',
   #                                yanchor='bottom',
   #                                orientation='h'))
+
+
+plot_with_tooltip <- emails_schedule %>%
+  mutate(duration_end = days_from_event_numeric + duration_days_numeric,
+         email_content = str_wrap(email_content)) %>% 
+  filter(!is.na(email_type)) %>%
+ # pivot_longer(c(days_from_event_numeric, duration_end), names_to = "start_end", values_to = "days_from_event") %>% 
+  ggplot(aes(x = days_from_event_numeric,
+             y = rev(fct_inorder(email_description)),
+             text = email_content)) +
+  geom_vline(xintercept = 0,
+             color = "green",
+             linetype = "dashed") +
+  geom_segment_interactive(aes(x = days_from_event_numeric, 
+                   xend = duration_end, 
+                   y = rev(fct_inorder(email_description)), 
+                   yend = rev(fct_inorder(email_description)),
+                   color = email_type,
+                   fill = email_type,
+               tooltip = email_content), 
+               lineend = "round", 
+               size = 5) + 
+  labs(color="Email type",
+       x = "Time relative to event",
+       y = "Email description",
+       title = "Rough plan for speakers communications timeline",
+       subtitle = "Hover over segment ends to see email content") +
+  scale_x_continuous(breaks = unique(emails_schedule$days_from_event_numeric), 
+                     labels = unique(emails_schedule$days_from_event_text)) +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        legend.position="none") 
+
 
 ```
 
@@ -149,11 +183,14 @@ plot_with_tooltip <- ggplotly(plot,
 <br />
 
 
-```{r include = TRUE, out.width="150%"}
+```{r include = TRUE}
 
 
 
-plot_with_tooltip
+girafe(ggobj = plot_with_tooltip,
+       
+  width_svg = 8.5,
+  height_svg = 3.5)
 
 ```
 
